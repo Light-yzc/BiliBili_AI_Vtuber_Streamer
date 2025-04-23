@@ -1,3 +1,5 @@
+## 效果展示 
+[在你B直播的演示视频](https://www.bilibili.com/video/BV1EDLhzCE9x/)
 ## 简单食用方法：
 - 启动酒馆，注意要保证是在8000端口
 - 在main中把header替换成你能成功请求的酒馆header
