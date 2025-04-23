@@ -1,0 +1,415 @@
+{
+    "code": 0,
+    "data": {
+        "admin": [],
+        "room": [
+            {
+                "text": "test",
+                "dm_type": 0,
+                "uid": 54824703,
+                "nickname": "贤狼_Holo",
+                "uname_color": "",
+                "timeline": "2025-04-19 22:38:12",
+                "isadmin": 0,
+                "vip": 0,
+                "svip": 0,
+                "medal": [
+                    15,
+                    "奇迹法",
+                    "lovelive",
+                    261955,
+                    12478086,
+                    "",
+                    0,
+                    12478086,
+                    12478086,
+                    12478086,
+                    0,
+                    1,
+                    8384286
+                ],
+                "title": [
+                    "title-153-1",
+                    "title-153-1"
+                ],
+                "user_level": [
+                    20,
+                    0,
+                    6406234,
+                    "\u003e50000"
+                ],
+                "rank": 10000,
+                "teamid": 0,
+                "rnd": "1745073480",
+                "user_title": "title-153-1",
+                "guard_level": 0,
+                "bubble": 0,
+                "bubble_color": "",
+                "lpl": 0,
+                "yeah_space_url": "",
+                "jump_to_url": "",
+                "check_info": {
+                    "ts": 1745073492,
+                    "ct": "A9979FAB"
+                },
+                "voice_dm_info": {
+                    "voice_url": "",
+                    "file_format": "",
+                    "text": "",
+                    "file_duration": 0,
+                    "file_id": ""
+                },
+                "emoticon": {
+                    "id": 0,
+                    "emoticon_unique": "",
+                    "text": "",
+                    "perm": 0,
+                    "url": "",
+                    "in_player_area": 0,
+                    "bulge_display": 0,
+                    "is_dynamic": 0,
+                    "height": 0,
+                    "width": 0
+                },
+                "emots": null,
+                "id_str": "79a817300207c3f352f1710c8a6803b59798",
+                "wealth_level": 2,
+                "bubble_id_v2": 0,
+                "reply": {
+                    "show_reply": true,
+                    "reply_mid": 0,
+                    "reply_uname": "",
+                    "reply_uname_color": "",
+                    "reply_is_mystery": false,
+                    "reply_type_enum": 0
+                },
+                "group_medal": null,
+                "user": {
+                    "uid": 54824703,
+                    "base": {
+                        "name": "贤狼_Holo",
+                        "face": "https://i0.hdslb.com/bfs/face/f34c33df7f48b95520a057c4a500a460938eedc5.jpg",
+                        "name_color": 0,
+                        "is_mystery": false,
+                        "risk_ctrl_info": null,
+                        "origin_info": {
+                            "name": "贤狼_Holo",
+                            "face": "https://i0.hdslb.com/bfs/face/f34c33df7f48b95520a057c4a500a460938eedc5.jpg"
+                        },
+                        "official_info": {
+                            "role": 0,
+                            "title": "",
+                            "desc": "",
+                            "type": -1
+                        },
+                        "name_color_str": ""
+                    },
+                    "medal": {
+                        "name": "奇迹法",
+                        "level": 15,
+                        "color_start": 12478086,
+                        "color_end": 12478086,
+                        "color_border": 12478086,
+                        "color": 12478086,
+                        "id": 385752,
+                        "typ": 0,
+                        "is_light": 1,
+                        "ruid": 8384286,
+                        "guard_level": 0,
+                        "score": 65550,
+                        "guard_icon": "",
+                        "honor_icon": "",
+                        "v2_medal_color_start": "#C85DC499",
+                        "v2_medal_color_end": "#C85DC499",
+                        "v2_medal_color_border": "#C85DC499",
+                        "v2_medal_color_text": "#FFFFFFFF",
+                        "v2_medal_color_level": "#59005699",
+                        "user_receive_count": 0
+                    },
+                    "wealth": null,
+                    "title": {
+                        "old_title_css_id": "title-153-1",
+                        "title_css_id": "title-153-1"
+                    },
+                    "guard": null,
+                    "uhead_frame": null,
+                    "guard_leader": {
+                        "is_guard_leader": false
+                    }
+                }
+            },
+            {
+                "text": "你好你好",
+                "dm_type": 0,
+                "uid": 54824703,
+                "nickname": "贤狼_Holo",
+                "uname_color": "",
+                "timeline": "2025-04-19 22:38:22",
+                "isadmin": 0,
+                "vip": 0,
+                "svip": 0,
+                "medal": [
+                    15,
+                    "奇迹法",
+                    "lovelive",
+                    261955,
+                    12478086,
+                    "",
+                    0,
+                    12478086,
+                    12478086,
+                    12478086,
+                    0,
+                    1,
+                    8384286
+                ],
+                "title": [
+                    "title-153-1",
+                    "title-153-1"
+                ],
+                "user_level": [
+                    20,
+                    0,
+                    6406234,
+                    "\u003e50000"
+                ],
+                "rank": 10000,
+                "teamid": 0,
+                "rnd": "1745073480",
+                "user_title": "title-153-1",
+                "guard_level": 0,
+                "bubble": 0,
+                "bubble_color": "",
+                "lpl": 0,
+                "yeah_space_url": "",
+                "jump_to_url": "",
+                "check_info": {
+                    "ts": 1745073502,
+                    "ct": "D5E586C5"
+                },
+                "voice_dm_info": {
+                    "voice_url": "",
+                    "file_format": "",
+                    "text": "",
+                    "file_duration": 0,
+                    "file_id": ""
+                },
+                "emoticon": {
+                    "id": 0,
+                    "emoticon_unique": "",
+                    "text": "",
+                    "perm": 0,
+                    "url": "",
+                    "in_player_area": 0,
+                    "bulge_display": 0,
+                    "is_dynamic": 0,
+                    "height": 0,
+                    "width": 0
+                },
+                "emots": null,
+                "id_str": "28c64bba5646a06c5ef9562fe36803b52655",
+                "wealth_level": 2,
+                "bubble_id_v2": 0,
+                "reply": {
+                    "show_reply": true,
+                    "reply_mid": 0,
+                    "reply_uname": "",
+                    "reply_uname_color": "",
+                    "reply_is_mystery": false,
+                    "reply_type_enum": 0
+                },
+                "group_medal": null,
+                "user": {
+                    "uid": 54824703,
+                    "base": {
+                        "name": "贤狼_Holo",
+                        "face": "https://i0.hdslb.com/bfs/face/f34c33df7f48b95520a057c4a500a460938eedc5.jpg",
+                        "name_color": 0,
+                        "is_mystery": false,
+                        "risk_ctrl_info": null,
+                        "origin_info": {
+                            "name": "贤狼_Holo",
+                            "face": "https://i0.hdslb.com/bfs/face/f34c33df7f48b95520a057c4a500a460938eedc5.jpg"
+                        },
+                        "official_info": {
+                            "role": 0,
+                            "title": "",
+                            "desc": "",
+                            "type": -1
+                        },
+                        "name_color_str": ""
+                    },
+                    "medal": {
+                        "name": "奇迹法",
+                        "level": 15,
+                        "color_start": 12478086,
+                        "color_end": 12478086,
+                        "color_border": 12478086,
+                        "color": 12478086,
+                        "id": 385752,
+                        "typ": 0,
+                        "is_light": 1,
+                        "ruid": 8384286,
+                        "guard_level": 0,
+                        "score": 65550,
+                        "guard_icon": "",
+                        "honor_icon": "",
+                        "v2_medal_color_start": "#C85DC499",
+                        "v2_medal_color_end": "#C85DC499",
+                        "v2_medal_color_border": "#C85DC499",
+                        "v2_medal_color_text": "#FFFFFFFF",
+                        "v2_medal_color_level": "#59005699",
+                        "user_receive_count": 0
+                    },
+                    "wealth": null,
+                    "title": {
+                        "old_title_css_id": "title-153-1",
+                        "title_css_id": "title-153-1"
+                    },
+                    "guard": null,
+                    "uhead_frame": null,
+                    "guard_leader": {
+                        "is_guard_leader": false
+                    }
+                }
+            },
+            {
+                "text": "1231312",
+                "dm_type": 0,
+                "uid": 54824703,
+                "nickname": "贤狼_Holo",
+                "uname_color": "",
+                "timeline": "2025-04-19 22:38:41",
+                "isadmin": 0,
+                "vip": 0,
+                "svip": 0,
+                "medal": [
+                    15,
+                    "奇迹法",
+                    "lovelive",
+                    261955,
+                    12478086,
+                    "",
+                    0,
+                    12478086,
+                    12478086,
+                    12478086,
+                    0,
+                    1,
+                    8384286
+                ],
+                "title": [
+                    "title-153-1",
+                    "title-153-1"
+                ],
+                "user_level": [
+                    20,
+                    0,
+                    6406234,
+                    "\u003e50000"
+                ],
+                "rank": 10000,
+                "teamid": 0,
+                "rnd": "1745073480",
+                "user_title": "title-153-1",
+                "guard_level": 0,
+                "bubble": 0,
+                "bubble_color": "",
+                "lpl": 0,
+                "yeah_space_url": "",
+                "jump_to_url": "",
+                "check_info": {
+                    "ts": 1745073521,
+                    "ct": "1ED4ABD6"
+                },
+                "voice_dm_info": {
+                    "voice_url": "",
+                    "file_format": "",
+                    "text": "",
+                    "file_duration": 0,
+                    "file_id": ""
+                },
+                "emoticon": {
+                    "id": 0,
+                    "emoticon_unique": "",
+                    "text": "",
+                    "perm": 0,
+                    "url": "",
+                    "in_player_area": 0,
+                    "bulge_display": 0,
+                    "is_dynamic": 0,
+                    "height": 0,
+                    "width": 0
+                },
+                "emots": null,
+                "id_str": "5171d3cde46afa444856b6fd076803b59891",
+                "wealth_level": 2,
+                "bubble_id_v2": 0,
+                "reply": {
+                    "show_reply": true,
+                    "reply_mid": 0,
+                    "reply_uname": "",
+                    "reply_uname_color": "",
+                    "reply_is_mystery": false,
+                    "reply_type_enum": 0
+                },
+                "group_medal": null,
+                "user": {
+                    "uid": 54824703,
+                    "base": {
+                        "name": "贤狼_Holo",
+                        "face": "https://i0.hdslb.com/bfs/face/f34c33df7f48b95520a057c4a500a460938eedc5.jpg",
+                        "name_color": 0,
+                        "is_mystery": false,
+                        "risk_ctrl_info": null,
+                        "origin_info": {
+                            "name": "贤狼_Holo",
+                            "face": "https://i0.hdslb.com/bfs/face/f34c33df7f48b95520a057c4a500a460938eedc5.jpg"
+                        },
+                        "official_info": {
+                            "role": 0,
+                            "title": "",
+                            "desc": "",
+                            "type": -1
+                        },
+                        "name_color_str": ""
+                    },
+                    "medal": {
+                        "name": "奇迹法",
+                        "level": 15,
+                        "color_start": 12478086,
+                        "color_end": 12478086,
+                        "color_border": 12478086,
+                        "color": 12478086,
+                        "id": 385752,
+                        "typ": 0,
+                        "is_light": 1,
+                        "ruid": 8384286,
+                        "guard_level": 0,
+                        "score": 65550,
+                        "guard_icon": "",
+                        "honor_icon": "",
+                        "v2_medal_color_start": "#C85DC499",
+                        "v2_medal_color_end": "#C85DC499",
+                        "v2_medal_color_border": "#C85DC499",
+                        "v2_medal_color_text": "#FFFFFFFF",
+                        "v2_medal_color_level": "#59005699",
+                        "user_receive_count": 0
+                    },
+                    "wealth": null,
+                    "title": {
+                        "old_title_css_id": "title-153-1",
+                        "title_css_id": "title-153-1"
+                    },
+                    "guard": null,
+                    "uhead_frame": null,
+                    "guard_leader": {
+                        "is_guard_leader": false
+                    }
+                }
+            }
+        ]
+    },
+    "message": "",
+    "msg": ""
+}
