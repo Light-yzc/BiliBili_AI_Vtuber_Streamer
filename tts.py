@@ -1,5 +1,6 @@
 import requests
 import wave
+import json
 import os
 
 
@@ -26,6 +27,8 @@ def bin_to_mp3(data):
     with open('./voices/1.mp3', 'wb') as f:
         f.write(data)
 def get_tts(txt):
+    with open('./config.json', 'r') as file:
+        api = json.load(file)['api-key']
     url = "https://api.siliconflow.cn/v1/audio/speech"
 
     payload = {
@@ -39,7 +42,7 @@ def get_tts(txt):
         "sample_rate": 44100
     }
     headers = {
-        "Authorization": "Bearer sk-<your api>",
+        "Authorization": "Bearer " + str(api),
         "Content-Type": "application/json"
     }
 
@@ -47,3 +50,5 @@ def get_tts(txt):
     # binary_to_wav(response.content , './1.wav', )
     bin_to_mp3(response.content)
     print(str(response)+'已经执行生成语音指令')
+
+get_tts('你好')

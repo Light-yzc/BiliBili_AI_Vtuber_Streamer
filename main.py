@@ -12,7 +12,7 @@ from tts import get_tts
 from audio_handle import lip_sync
 from danmu import get_danmu
 from Vtuber_api import *
-from config import GLOBAL_CONFIG
+from config import DEFAULT_CONFIG
 char_id = 1
 # 注册插件
 live_url = 'https://api.live.bilibili.com/xlive/web-room/v1/dM/gethistory?roomid=1862819&room_type=0'
@@ -292,7 +292,7 @@ def main():
         get_tts(out_put)
         thread = threading.Thread(target=run_async_1, daemon=True)
         thread.start()
-        GLOBAL_CONFIG['statue'] = 1
+        DEFAULT_CONFIG['statue'] = 1
         cur_danmu = danmu
         # i+=1
         thread.join()

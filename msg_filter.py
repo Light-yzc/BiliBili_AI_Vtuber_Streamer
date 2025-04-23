@@ -1,3 +1,5 @@
-from config import GLOBAL_CONFIG
+import json
 def msg_filte(msg):
-    return any(keywords in msg for keywords in GLOBAL_CONFIG['msg_filte'])
+    with open('./config.json', 'r') as file:
+        config = json.load(file)
+        return any(keywords in msg for keywords in config['msg_filte'])

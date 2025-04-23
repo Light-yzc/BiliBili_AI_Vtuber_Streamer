@@ -3,7 +3,7 @@ import json
 import random
 import math
 from websockets import connect
-from config import GLOBAL_CONFIG
+# from config import DEFAULT_CONFIG,save_config
 current_params = {
     "FaceAngleX": 0,
     "FaceAngleY": 0,
@@ -15,8 +15,34 @@ current_params = {
     "HandLeftPositionY": 0
     # "NeckZ": 0 
 }
+async def get_authenticationToken():
+    uri = "ws://localhost:8001"
+    async with connect(uri) as socket:
+        to_auth = {
+            "apiName": "VTubeStudioPublicAPI",
+            "apiVersion": "1.0",
+            "requestID": "123",
+            "messageType": "AuthenticationTokenRequest",
+            "data": {
+                "pluginName": "My Cool Plugin",
+                "pluginDeveloper": "My Name",
+            }
+        }
+        await socket.send(json.dumps(to_auth))
+        response = json.loads(await socket.recv())
+        print('authenticationToken ' + str(response['data']['authenticationToken']))
+        with open('./config.json', 'r', encoding='utf-8') as f:
+            config = json.load(f)
+            config['vts_authenticationToken'] = str(response['data']['authenticationToken'])
+        with open("./config.json",'w',encoding='utf-8') as f:
+            json.dump(config, f,ensure_ascii=False)
+
 async def dynamic_gaze():
     global current_params
+    with open('config.json', 'r', encoding='utf-8') as f:
+        GLOBAL_CONFIG = json.load(f)
+        if GLOBAL_CONFIG['vts_authenticationToken'] == '':
+            await get_authenticationToken()
     uri = "ws://localhost:8001"
     async with connect(uri) as websocket:
         # 1. 身份认证（需补充你的认证逻辑）
@@ -29,7 +55,7 @@ async def dynamic_gaze():
         "data": {
             "pluginName": "My Cool Plugin",
             "pluginDeveloper": "My Name",
-            "authenticationToken": "4ed673edc7e48a64ac9ad753c98318c24380f28481dafd3a5c7a822e5abbcb90"
+            "authenticationToken": GLOBAL_CONFIG['vts_authenticationToken']
         }
         }
         await websocket.send(json.dumps(authed))
@@ -220,6 +246,6 @@ async def expressive_head_movement():
             if random.random() < 0.4:
                 await asyncio.sleep(random.uniform(0.05, 0.15))
 
-# asyncio.run(dynamic_gaze())
+asyncio.run(get_authenticationToken())
 # asyncio.run(expressive_head_movement())
 

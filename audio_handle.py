@@ -1,14 +1,12 @@
-from config import GLOBAL_CONFIG
-import time
 import asyncio
 import json
 import threading
-import queue
 import numpy as np
 import librosa
 import sounddevice as sd
 from websockets import connect
 from playsound import playsound
+from config import DEFAULT_CONFIG
 is_play = 0
 # 共享数据结构
 class AudioState:
@@ -65,11 +63,13 @@ def audio_play_thread(mp3_path):
             sd.sleep(int(1000 / 30))  
 
 async def lip_sync(mp3_path):
+    with open('./config,json', 'r', encoding='utf-8') as file:
+        GLOBAL_CONFIG = json.load(file)
     global is_play  
     audio_state.reset()
     """主异步函数处理VTS通信"""
     WS_URI = "ws://localhost:8001"
-    AUTH_TOKEN = "4ed673edc7e48a64ac9ad753c98318c24380f28481dafd3a5c7a822e5abbcb90"
+    AUTH_TOKEN = GLOBAL_CONFIG['vts_authenticationToken']
     
     # 启动音频线程
     audio_thread = threading.Thread(
@@ -91,12 +91,12 @@ async def lip_sync(mp3_path):
         "data": {
             "pluginName": "My Cool Plugin",
             "pluginDeveloper": "My Name",
-            "authenticationToken": "4ed673edc7e48a64ac9ad753c98318c24380f28481dafd3a5c7a822e5abbcb90"
+            "authenticationToken": AUTH_TOKEN
         }
         }))
         auth_response = await websocket.recv()
         print("认证响应:", json.loads(auth_response))
-        GLOBAL_CONFIG['statue'] = 2
+        DEFAULT_CONFIG['statue'] = 2
         while audio_thread.is_alive():
 
             # 获取当前振幅（线程安全）
@@ -127,7 +127,7 @@ async def lip_sync(mp3_path):
             
     audio_state.stop_event.set()
     audio_thread.join()
-    GLOBAL_CONFIG['statue'] = 1
+    DEFAULT_CONFIG['statue'] = 1
 
 
 # async def main():
