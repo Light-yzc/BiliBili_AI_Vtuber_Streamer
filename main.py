@@ -63,24 +63,6 @@ headers = {
 }
 
 
-
-# if turns == 1:
-#     global browser
-#     browser  = browser_gen()
-#     # <div class="flex-container swipeRightBlock flexFlowColumn flexNoGap">
-#     #                 <div class="swipe_right fa-solid fa-chevron-right interactable" style="display: flex; opacity: 0.7;" tabindex="0"></div>
-#     #                 <div class="swipes-counter" style="opacity: 0.7;">1&ZeroWidthSpace;/&ZeroWidthSpace;1</div>
-#     #             </div>
-#     try:
-#         xpath_expression = "//div[@class='flex-container swipeRightBlock flexFlowColumn flexNoGap']/div[@class='swipe_right fa-solid fa-chevron-right interactable' and @style='display: flex; opacity: 0.3;' and @tabindex='0']"
-#         elm1 = browser.find_element(By.XPATH,xpath_expression)
-#     except:
-#         xpath_expression = "//div[@class='flex-container swipeRightBlock flexFlowColumn flexNoGap']/div[@class='swipe_right fa-solid fa-chevron-right interactable' and @style='display: flex; opacity: 0.7;' and @tabindex='0']"
-#         elm1 = browser.find_element(By.XPATH,xpath_expression)
-#     ActionChains(browser).move_to_element(elm1).click().perform()
-
-
-
 def get_date(num):
     global headers,browser
     url = 'http://127.0.0.1:8000/api/characters/all'
@@ -151,9 +133,6 @@ if turns != 1:
 
 
 
-
-
-
 def excut_msg(browser,message):
     global msg_i,turns,api_used
     if turns == 1:
@@ -182,8 +161,6 @@ def excut_msg(browser,message):
     if i > 80:
         return msg + '\n****当前Api请求过慢，可能因为供应商服务器负载过大\n请过一会重新初始化后再次尝试****'
     return msg
-msg_to_change_char = 'CharID0  名称：两只亡灵少女   描述：无\nCharID1  名称：Freya   描述：雨中坠落的天使…….\nCharID2  名称：Miki   描述：文风比较独特\nCharID3  名称：Saber   描述：解决Saber泛滥的社会问题的Saber\nCharID4  名称：Queen   描述：异.....异形？\nCharID5 名称：Tiche   描述：抢走你牛至的魔法少女！\nCharID6  名称：伊蕾娜   描述：欢迎来到魔女的世界！\nCharID7  名称：呕吐内心的少女   描述：无\nCharID8  名称：娘化生物世界   描述：无\nCharID9  名称：帝国拷问官   描述：无\nCharID10  名称：扫一扫   描述：扫一扫更改数据\nCharID11  名称：末世孤雄RPG   描述：无\nCharID12  砂狼白子   描述：欢迎来到碧蓝档案！\nCharID13  名称：芙蕾雅   描述：雨中坠落的天使…….\nCharID14  名称：虚拟色色体验馆   描述：无\n如果报错请重新切换角色或者初始化'
-
 
 
 def change_character(ch_id):
