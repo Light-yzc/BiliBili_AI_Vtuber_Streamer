@@ -4,6 +4,8 @@ import random
 import math
 from websockets import connect
 # from config import DEFAULT_CONFIG,save_config
+uri = "ws://localhost:8088"
+
 current_params = {
     "FaceAngleX": 0,
     "FaceAngleY": 0,
@@ -16,7 +18,6 @@ current_params = {
     # "NeckZ": 0 
 }
 async def get_authenticationToken():
-    uri = "ws://localhost:8001"
     async with connect(uri) as socket:
         to_auth = {
             "apiName": "VTubeStudioPublicAPI",
@@ -43,10 +44,8 @@ async def dynamic_gaze():
         GLOBAL_CONFIG = json.load(f)
         if GLOBAL_CONFIG['vts_authenticationToken'] == '':
             await get_authenticationToken()
-    uri = "ws://localhost:8001"
     async with connect(uri) as websocket:
         # 1. 身份认证（需补充你的认证逻辑）
-        # ...
         authed = {
         "apiName": "VTubeStudioPublicAPI",
         "apiVersion": "1.0",
@@ -60,7 +59,7 @@ async def dynamic_gaze():
         }
         await websocket.send(json.dumps(authed))
         auth_response = await websocket.recv()
-        print("认证响应:", json.loads(auth_response))
+        # print("认证响应:", json.loads(auth_response))
         # 2. 初始化参数
 
 
@@ -155,7 +154,6 @@ def clamp(value, min_val=0.0, max_val=1.0):
 
 async def expressive_head_movement():
     global current_params
-    uri = "ws://localhost:8001"
     async with connect(uri) as websocket:
         # 身份认证...
         authed = {
@@ -246,6 +244,6 @@ async def expressive_head_movement():
             if random.random() < 0.4:
                 await asyncio.sleep(random.uniform(0.05, 0.15))
 
-asyncio.run(get_authenticationToken())
+# asyncio.run(get_authenticationToken())
 # asyncio.run(expressive_head_movement())
 

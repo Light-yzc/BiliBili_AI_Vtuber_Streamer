@@ -8,6 +8,8 @@ from websockets import connect
 from playsound import playsound
 from config import DEFAULT_CONFIG
 is_play = 0
+WS_URI = "ws://localhost:8088"
+
 # 共享数据结构
 class AudioState:
     def __init__(self):
@@ -63,12 +65,11 @@ def audio_play_thread(mp3_path):
             sd.sleep(int(1000 / 30))  
 
 async def lip_sync(mp3_path):
-    with open('./config,json', 'r', encoding='utf-8') as file:
+    with open(r'./config.json', 'r', encoding='utf-8') as file:
         GLOBAL_CONFIG = json.load(file)
     global is_play  
     audio_state.reset()
     """主异步函数处理VTS通信"""
-    WS_URI = "ws://localhost:8001"
     AUTH_TOKEN = GLOBAL_CONFIG['vts_authenticationToken']
     
     # 启动音频线程
@@ -113,7 +114,7 @@ async def lip_sync(mp3_path):
                     "faceFound": True,
                     "mode": "set",
                     "parameterValues": [
-                        {"id": "MouthOpen", "value": mouth_open*0.1},
+                        {"id": "MouthOpen", "value": mouth_open*0.5},
                         # {"id": "MouthForm", "value": mouth_open * 0.8}
                     ]
                 }
@@ -123,7 +124,7 @@ async def lip_sync(mp3_path):
             await asyncio.sleep(1/30 - 0.001)  # 补偿网络延迟
 
             response = await websocket.recv()
-            print("口型:", json.loads(response))
+            # print("口型:", json.loads(response))
             
     audio_state.stop_event.set()
     audio_thread.join()

@@ -1,5 +1,1 @@
-{"statue": 1, 
-"msg_filte": ["互关", "关注", "回关", ""], 
-"//": "放你的TTS的Api key",
-"api-key": "", 
-"vts_authenticationToken": "54e446edaba32a60c8c60691a278ef9b41c63b2e072af8403432b3ba95d27d00"}
+{"statue": 1, "msg_filte": ["互关", "关注", "回关", ""], "//": "放你的TTS的Api key", "api-key": "", "vts_authenticationToken": ""}
