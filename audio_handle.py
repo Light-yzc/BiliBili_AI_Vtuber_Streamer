@@ -8,7 +8,8 @@ from websockets import connect
 from playsound import playsound
 from config import DEFAULT_CONFIG
 is_play = 0
-WS_URI = "ws://localhost:8088"
+with open('./config.json', 'r', encoding='utf-8') as file:
+    WS_URI= json.load(file)['ws_host']
 
 # 共享数据结构
 class AudioState:

@@ -3,8 +3,6 @@ import wave
 import json
 import os
 
-
-
 def binary_to_wav(data, output_file, sample_rate=44100, channels=1, sample_width=2):
     # 读取二进制文件
     raw_data = data
@@ -27,10 +25,10 @@ def bin_to_mp3(data, file_name):
     with open(file_path, 'wb') as f:
         f.write(data)
 def get_tts(txt, file_name):
-    with open('./config.json', 'r') as file:
-        api = json.load(file)['api-key']
-    url = "https://api.siliconflow.cn/v1/audio/speech"
-
+    with open('./config.json', 'r', encoding='utf-8') as file:
+        config= json.load(file)
+        api = config['api-key-tts']
+        url = config['api-url-tts']
     payload = {
         "input": txt,
         "response_format": "mp3",

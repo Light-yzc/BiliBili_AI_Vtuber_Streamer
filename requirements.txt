@@ -1,0 +1,8 @@
+requests
+playsound
+numpy
+Pillow
+opencv-python
+websockets
+sounddevice
+librosa

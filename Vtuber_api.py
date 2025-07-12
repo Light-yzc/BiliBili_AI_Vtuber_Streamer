@@ -4,8 +4,8 @@ import random
 import math
 from websockets import connect
 # from config import DEFAULT_CONFIG,save_config
-uri = "ws://localhost:8088"
-
+with open('./config.json', 'r', encoding='utf-8') as file:
+    uri= json.load(file)['ws_host']
 current_params = {
     "FaceAngleX": 0,
     "FaceAngleY": 0,

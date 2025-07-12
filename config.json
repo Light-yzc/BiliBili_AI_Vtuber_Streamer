@@ -1,1 +1,11 @@
-{"statue": 1, "msg_filte": ["互关", "关注", "回关", ""], "//": "放你的TTS的Api key", "api-key": "", "vts_authenticationToken": ""}
+{"statue": 1, "msg_filte": ["互关", "关注", "回关", ""], 
+"api-key-tts": "", 
+"api-url-tts":"https://api.siliconflow.cn/v1/audio/speech",
+"api-key-llm-1":"",
+"api-key-llm-2":"",
+"api-url-1":"",
+"api-url-2":"https://api.siliconflow.cn/v1/chat/completions",
+"live_url":"https://api.live.bilibili.com/xlive/web-room/v1/dM/gethistory?roomid=your_id&room_type=0",
+"ws_host":"ws://localhost:8088",
+"vts_authenticationToken": ""
+}
