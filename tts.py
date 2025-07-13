@@ -2,7 +2,7 @@ import requests
 import wave
 import json
 import os
-
+from audio_handle import audio_state
 def binary_to_wav(data, output_file, sample_rate=44100, channels=1, sample_width=2):
     # 读取二进制文件
     raw_data = data
@@ -14,7 +14,7 @@ def binary_to_wav(data, output_file, sample_rate=44100, channels=1, sample_width
         wav_file.setframerate(sample_rate)  # 采样率
         wav_file.writeframes(raw_data)
 def bin_to_mp3(data, file_name):
-    file_path = f'./voices/{file_name}.mp3'  # 替换为你的文件路径
+    file_path = f'./voices/{file_name}.wav'  # 替换为你的文件路径
 
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -31,7 +31,7 @@ def get_tts(txt, file_name):
         url = config['api-url-tts']
     payload = {
         "input": txt,
-        "response_format": "mp3",
+        "response_format": "wav",
         "stream": False,
         "speed": 1,
         "gain": 0,
@@ -56,7 +56,11 @@ def gengerate_voice(text, file_name):
     url = f'http://127.0.0.1:9880/?refer_wav_path='+ corrected_file_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=15&top_p=1&temperature=1&speed=0.8&cut_punc=。`'
     try:
         response = requests.get(url=url)
+        print(response)
         bin_to_mp3(response.content, file_name)
     except:
         print("------tts的Api服务器不可用，跳过声音生成------")
+
+
+# gengerate_voice('你好啊123','./test')
 
