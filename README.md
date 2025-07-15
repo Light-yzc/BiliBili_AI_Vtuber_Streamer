@@ -1,9 +1,3 @@
------
-
-好的，我已经为你将这句话添加到项目 README 的末尾，紧随许可证信息之后。
-
------
-
 # Bilibili AI 直播主播 Demo
 
 **基于 B 站直播接口、大语言模型 (LLM) 和语音合成 (TTS) 的 AI 主播演示项目，支持本地化部署与自定义角色设定。**
@@ -68,7 +62,9 @@ pip install -r requirements.txt
   "ws_host": "ws://localhost:8088",  // VTuber Studio (VTS) WebSocket 地址
   "vts_authenticationToken": "",  // VTS 认证令牌（可选，留空则首次启动时自动获取）
   "streamer_name":"your name",  // 你的 B 站直播间昵称，有助于 LLM 区分主播和观众
-  "use_text_align":false // 强制文本-语音对齐功能，开启后可实现字幕与语音同步显示（需额外安装 torch 和 whisperx）
+  "use_text_align":false, // 强制文本-语音对齐功能，开启后可实现字幕与语音同步显示（需额外安装 torch 和 whisperx）
+  "use_screen_shot":true, //是否启用小模型来辅助判断启用截图功能
+  "use_stream":true //是否开启流式输出并生成语音，可能有助于减少AI主播的反应时间
 }
 ```
 
@@ -139,6 +135,8 @@ python main.py
   * 更新了主播人格 Prompt，使 AI 主播的性格更贴合直播场景，并生成更具相关性的弹幕回复。
   * 优化vtuber studio api调用逻辑，使其更加活灵活现。
 -----
+### Version 0.1.15 (2025-07-15)
+  * 增加流式输出
 
 ## 📜 许可证
 

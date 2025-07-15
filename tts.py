@@ -20,7 +20,7 @@ def bin_to_mp3(data, file_name):
         os.remove(file_path)
         print(f"文件 {file_path} 已删除")
     else:
-        print(f"文件 {file_path} 不存在")
+        print(f"文件 {file_path} 已生成")
 
     with open(file_path, 'wb') as f:
         f.write(data)
@@ -53,7 +53,7 @@ def gengerate_voice(text, file_name):
     global tmp_file,i,ref_path
     ref_path = os.path.dirname(os.path.abspath(__file__)) + '/ref.wav'
     corrected_file_path = ref_path.replace('\\', '/')
-    url = f'http://127.0.0.1:9880/?refer_wav_path='+ corrected_file_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=15&top_p=1&temperature=1&speed=0.8&cut_punc=。`'
+    url = f'http://127.0.0.1:9880/?refer_wav_path='+ corrected_file_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=15&top_p=1&temperature=1&speed=0.8&cut_punc=，。`'
     try:
         response = requests.get(url=url)
         print(response)

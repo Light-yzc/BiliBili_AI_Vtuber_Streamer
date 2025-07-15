@@ -6,4 +6,5 @@ class DynamicConfig:
         self.motion_duriation_max = 1.8
         self.Action_magnification = 0.5
         self.mouth  = 1
+        self.cur_chunk_size = 9999
 app_config = DynamicConfig()

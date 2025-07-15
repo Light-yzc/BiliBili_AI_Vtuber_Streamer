@@ -1,12 +1,14 @@
 {"statue": 1, "msg_filte": ["互关", "关注", "回关", "", " ", "\n"], 
 "api-key-tts": "sk-",
 "api-url-tts": "https://api.siliconflow.cn/v1/audio/speech",
-"api-key-llm-1": "",
+"api-key-llm-1": "qwer233",
 "api-key-llm-2": "sk-",
 "api-url-1": "", 
 "api-url-2": "https://api.siliconflow.cn/v1/chat/completions", 
-"live_url": "https://api.live.bilibili.com/xlive/web-room/v1/dM/gethistory?roomid=YOURID&room_type=0",
+"live_url": "https://api.live.bilibili.com/xlive/web-room/v1/dM/gethistory?roomid=&room_type=0",
 "ws_host": "ws://localhost:8088",
 "vts_authenticationToken": "",
-"streamer_name":"your name",
-"use_text_align":false}
+"streamer_name":"",
+"use_screen_shot":true,
+"use_text_align":false,
+"use_stream":true}

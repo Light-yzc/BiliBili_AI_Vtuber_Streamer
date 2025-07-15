@@ -49,19 +49,31 @@ def text_algn(model_a, metadata, device, audio_path, gt_text):
     print("正在加载中文对齐模型 (基于 Wav2Vec2 + CTC)...")
     print("正在执行强制对齐...")
     try:
-        aligned_result = whisperx.align(
-            transcript=segments,
-            model=model_a,
-            align_model_metadata=metadata,
-            audio=audio,
-            device=device,
-            return_char_alignments=True  # 设置为True可以获取字符级别的时间戳
-        )
+        with torch.no_grad():
+            aligned_result = whisperx.align(
+                transcript=segments,
+                model=model_a,
+                align_model_metadata=metadata,
+                audio=audio,
+                device=device,
+                return_char_alignments=True
+            )
         print("强制对齐完成。")
     except Exception as e:
         print(f"执行对齐失败：{e}")
         print("请检查输入音频和文本是否匹配。")
         exit()
+    # 防止显存泄露
+    # 1. 删除不再需要的大变量
+    del audio
+    del segments
+    
+    # 2. 清除PyTorch缓存
+    if device == "cuda":
+        torch.cuda.empty_cache()
+    
+    # 3. 手动触发垃圾回收
+    gc.collect()
     print("\n--- 对齐成功 ---")
     return audio_path, aligned_result
 

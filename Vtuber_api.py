@@ -31,118 +31,20 @@ async def get_authenticationToken():
         await socket.send(json.dumps(to_auth))
         response = json.loads(await socket.recv())
         print('authenticationToken ' + str(response['data']['authenticationToken']))
-        with open('./config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            config['vts_authenticationToken'] = str(response['data']['authenticationToken'])
-        with open("./config.json",'w',encoding='utf-8') as f:
-            json.dump(config, f,ensure_ascii=False)
-
-
-#version 1
-async def dynamic_gaze():
-    global current_params
-    with open('config.json', 'r', encoding='utf-8') as f:
-        GLOBAL_CONFIG = json.load(f)
-        if GLOBAL_CONFIG['vts_authenticationToken'] == '':
-            await get_authenticationToken()
-    async with connect(uri) as websocket:
-        # 1. 身份认证（需补充你的认证逻辑）
-        authed = {
-        "apiName": "VTubeStudioPublicAPI",
-        "apiVersion": "1.0",
-        "requestID": "123",
-        "messageType": "AuthenticationRequest",
-        "data": {
-            "pluginName": "My Cool Plugin",
-            "pluginDeveloper": "My Name",
-            "authenticationToken": GLOBAL_CONFIG['vts_authenticationToken']
-        }
-        }
-        await websocket.send(json.dumps(authed))
-        auth_response = await websocket.recv()
-        print("认证响应:", json.loads(auth_response))
-        # 2. 初始化参数
-
-
-        # 3. 持续随机视线循环
-        while True:
-            # 生成随机目标（头部和眼睛）
-            if GLOBAL_CONFIG['statue'] == 1:
-                target = {
-                    "FaceAngleX": random.uniform(-20, 20),   # 头部水平转动范围
-                    "FaceAngleY": random.uniform(-15, 10),   # 头部垂直转动范围
-                    "EyeLeftX":  clamp(random.gauss(0.5, 0.2), 0.2, 0.8),  # 高斯分布更自然
-                    "EyeRightX": clamp(random.gauss(0.5, 0.2), 0.2, 0.8),
-                    "EyeLeftY":  clamp(random.gauss(0.5, 0.1), 0.3, 0.7),
-                    "EyeRightY": clamp(random.gauss(0.5, 0.1), 0.3, 0.7),
-                    "HandLeftPositionX": random.uniform(-10, 10),
-                    "HandLeftPositionY": random.uniform(-10, 10)
-                    
-                }
-                duration = random.uniform(1, 2.5)  # 随机过渡时间
-
-            else:
-                target = {
-                    "FaceAngleX": random.uniform(-20, 20)*2,   # 头部水平转动范围
-                    "FaceAngleY": random.uniform(-15, 10)*2,   # 头部垂直转动范围
-                    "EyeLeftX":  clamp(random.gauss(0.5, 0.2), 0.2, 0.8),  # 高斯分布更自然
-                    "EyeRightX": clamp(random.gauss(0.5, 0.2), 0.2, 0.8),
-                    "EyeLeftY":  clamp(random.gauss(0.5, 0.1), 0.3, 0.7),
-                    "EyeRightY": clamp(random.gauss(0.5, 0.1), 0.3, 0.7),
-                    "HandLeftPositionX": random.uniform(-10, 10),
-                    "HandLeftPositionY": random.uniform(-10, 10)
-                }
-            # # 4. 平滑过渡到目标（使用缓动函数）
-                duration = random.uniform(0.4, 0.8)  # 随机过渡时间
-
-            start_time = asyncio.get_event_loop().time()
-            
-            while (asyncio.get_event_loop().time() - start_time) < duration:
-                progress = (asyncio.get_event_loop().time() - start_time) / duration
-                # 使用 easeOutQuad 缓动函数
-                t = 1 - (1 - progress) ** 2  
-                
-                # 插值计算当前值
-                interpolated = {}
-                for key in current_params:
-                    interpolated[key] = lerp(current_params[key], target[key], t)
-                
-                # 添加微小随机抖动（增强灵动感）
-                if random.random() < 0.3:
-                    interpolated["FaceAngleX"] += random.uniform(-1, 1)
-                    interpolated["EyeLeftX"] = clamp(interpolated["EyeLeftX"] + random.uniform(-0.05, 0.05))
-                
-                # 构建参数列表
-                parameters = [
-                    {"id": "FaceAngleX", "value": interpolated["FaceAngleX"]},
-                    {"id": "FaceAngleY", "value": interpolated["FaceAngleY"]},
-                    {"id": "EyeLeftX", "value": interpolated["EyeLeftX"]},
-                    {"id": "EyeRightX", "value": interpolated["EyeRightX"]},
-                    {"id": "EyeLeftY", "value": interpolated["EyeLeftY"]},
-                    {"id": "EyeRightY", "value": interpolated["EyeRightY"]},
-                    {"id": "HandLeftPositionX", "value": interpolated["FaceAngleX"]*0.2},
-                    {"id": "HandLeftPositionY", "value": interpolated["FaceAngleX"]*0.2}
-
-                ]
-                
-                # 发送指令
-                await websocket.send(json.dumps({
-                    "apiName": "VTubeStudioPublicAPI",
-                    "apiVersion": "1.0",
-                    "requestID": "GazeControl1",
-                    "messageType": "InjectParameterDataRequest",
-                    "data": {
-                        "faceFound": 'false',
-                        "mode": "set",
-                        "parameterValues": parameters
-                        }
-                }))
-                response = await websocket.recv()
-                # print(response)
-                await asyncio.sleep(0.02)  # 约33fps
-                # print('Nomal status'+ str(response))
-            # 更新当前状态
-            current_params = target.copy()
+        try:
+            with open('./config.json', 'r+', encoding='utf-8') as f:
+                config = json.load(f)
+                config['vts_authenticationToken'] = str(response['data']['authenticationToken'])
+                f.seek(0)  # 将文件指针移到开头
+                json.dump(config, f, ensure_ascii=False, indent=4) # indent=4 可以让生成的json文件更易读
+                f.truncate() # 截断文件，移除旧内容（如果新内容比旧内容短）
+            print('authenticationToken ' + str(response['data']['authenticationToken']))
+        except FileNotFoundError:
+            print("错误：config.json 文件未找到。请确保文件存在。")
+        except json.JSONDecodeError:
+            print("错误：config.json 文件内容无效，无法解析为 JSON。")
+        except Exception as e:
+            print(f"发生未知错误：{e}")
 
 def lerp(a, b, t):
     """线性插值"""
@@ -270,8 +172,5 @@ async def dynamic_gaze_exaggerated():
                 await websocket.recv() # 必须接收响应
                 await asyncio.sleep(1/60) # 保持高帧率以保证平滑
 
-
-
 # asyncio.run(get_authenticationToken())
-# asyncio.run(dynamic_gaze())
 # asyncio.run(dynamic_gaze_exaggerated())

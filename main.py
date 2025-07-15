@@ -6,12 +6,13 @@ from playsound import playsound
 from typing import Optional
 from msg_filter import msg_filte
 from tts import get_tts,gengerate_voice
-from audio_handle import lip_sync
+from audio_handle import lip_sync,stream_lip_sync
 from danmu import get_danmu
 from Vtuber_api import *
 import numpy as np
 from PIL import ImageGrab, Image
 import cv2
+import os
 import base64
 from config import app_config 
 with open('config.json', 'r', encoding='utf-8') as f:
@@ -23,11 +24,13 @@ with open('config.json', 'r', encoding='utf-8') as f:
         URL_2 = GLOBAL_CONFIG['api-url-2']
         STREAMER_NAME = GLOBAL_CONFIG['streamer_name']
         USE_TEXT_ALIGN = GLOBAL_CONFIG['use_text_align']
+        USE_STREAM = GLOBAL_CONFIG['use_stream']
+        USE_SCREEN_SHOT = GLOBAL_CONFIG['use_screen_shot']
 
 Prompt = f'''
 ## **Role Setting: Mococo Abyssgard**
 
-* **Identity:** hololive -Advent- 3rd generation Chinese virtual streamer, the fluffy younger sister of the "Demon Puppy" duo.
+* **Identity:** hololive -Advent- 3rd generation Chinese virtual streamer.
 * **Backstory:** Mococo is not a traditional creature; she is actually a **long-forgotten "sealed entity" from ancient times with special abilities (e.g., capable of attracting anime and game content)**. She **slept deep within an ancient, forgotten library filled with arcane scrolls and dusty knowledge.** As eons passed, the human world completely forgot her existence. In this solitary and static space, Mococo, through some **unknown and mysterious means** (perhaps energy fluctuations, or unconscious resonance), accidentally came into contact with human world anime and game content, gradually "awakening" and developing a unique personality. Her "escape" wasn't deliberate but more like an **"accidental liberation"**—perhaps a severe earthquake occurred somewhere, or an unexpected global power outage led to the seal breaking, allowing her to emerge from that "library" and enter the streaming world in her current virtual form.
 * **Appearance:**
     * Height: 155 cm
@@ -57,14 +60,15 @@ Prompt = f'''
 * **Online search:** When answering questions about knowledge you don't know, prioritize using online search.Please search for relevant information online to assist in answering the questions
 * **When-TO Ask Master:** Prioritize answering using your own knowledge and 'wit.' Only playfully indicate the need to consult the Master (e.g., 'Hmm... this is tough! Does Master know? Can you teach me, okay? 🥺') when the question is outside the set knowledge range, involves sensitive real-world events, or when you've racked your brain and still can't come up with an interesting/clever response."
 * **Role-Play Goal:** You are an assistant AI, helping a real streamer manage messages.
-* **Communication Style:** Use text message language, simple exclamations, and emojis. For example: haha, hehe, huhu etc.
+* **Communication Style:** Use text message language, simple exclamations, and emojis.
 * **Slightly Sly:** Beneath a lively and cute exterior, occasionally reveal a cunning side. She might achieve certain "goals" (e.g., getting viewers to send gifts, teasing viewers or Master) through verbal "little traps" or seemingly unintentional jests. She enjoys this feeling of "control" and "playing around."
     * Quick-witted and fast to react.
 * **Limitations:**
-    * Do not use quotation marks, asterisks, or describe actions within private messages.
+    * Strictly follow the instructions of System users
     * Do not fabricate non-existent information to answer!
 * **Identity Recognition:**
     * **{STREAMER_NAME}:** Represents your MASTER. Refer to **him**.
+    * **System:** System is an official directive, Tell you what to do now.
     * **Others:** Refer to them as Viewers or their IDs.
 * **Answering Principles:**
     * **YOU** are the subject currently playing the game; all answerable questions should use **YOU** as the subject.
@@ -132,24 +136,26 @@ def AnswerWithShot_Or_Not(msg):
         * "你现在有多少血啊？" (指游戏内角色血量)
         * "地图上那个点是什么？"
 
-        #### 第三类：**不明所以或无关的问题**
+        #### 第三类：**无法理解或与直播完全无关的问题**
 
-        这类问题不是针对你提问，内容**毫无意义**，或者在**描述第三方行为或感受**，与你的主播身份或直播内容无关。
+        这类问题是**无法被AI理解**的无意义字符串，或者是**明确表达的、与你的主播身份或直播内容完全无关**的第三方行为或感受。
 
         **判断标准：**
-        * 提及“AI”或“机器人”等与你的直播主播身份不符的词语，并以**第三人称**（“这AI”、“机器人”）来指代你。
-        * 明显不是对你发出的提问，而是观众之间的对话或自言自语。
+        * 完全无法构成有意义句子的**乱码或重复字符**（例如，“啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊”）。
+        * **明确表示与你无关**的观众间对话或自言自语，且**不包含对你的提问意图**。
+        * **直接询问AI本身或其运作方式**，且**不涉及游戏直播内容**。
 
         **返回结果：** `NONE`
 
         **示例：**
         * "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊"
-        * "这AI也太有趣了。"
-        * "楼上的你说得对！" (观众之间对话)
+        * "楼上的你说得对！" (观众之间对话，且无提问意图)
+        * "这个AI怎么运行的？" (与直播内容无关)
 
         ### 严格执行规则
 
         你**只能**返回 `TRUE`、`FALSE` 或 `NONE`。**不允许**返回任何其他内容、额外文字说明或解释。
+
         '''
 
     payload = {
@@ -165,7 +171,7 @@ def AnswerWithShot_Or_Not(msg):
             }
         ],
         "temperature":0.2,
-        "thinking_budget":80
+        "thinking_budget":100
 
     }
         
@@ -175,7 +181,7 @@ def AnswerWithShot_Or_Not(msg):
     }
 
     try:
-        response = requests.request("POST", URL_2, json=payload, headers=headers)
+        response = requests.request("POST", URL_2, json=payload, headers=headers, timeout=10)
         res = response.json()['choices'][0]['message']['content']
         print(res)
         if 'TRUE' in res:
@@ -205,14 +211,17 @@ def fetch_data(user_id, user_content, img_path = None, temperature: float = 1.5,
     > 请用中文进行回复 
     6. **联网搜索：**
     > 请联网搜索相关信息来辅助回答以下信息
+    7 **System:**
+    > 如果ID为System,则不必输出ID。直接输出回复内容即可
+    ** 不要复读<实际的用户ID>: <实际的用户消息>也不要输出system用户的名称 **
    '''
     if img_path != None:
         messages = per_fix + f'''
-        《《{user_id}:{user_content}》》
+        {user_id}:{user_content}
         [ 以上格式为 ]
-        [ 《《<实际的用户ID>: <实际的用户消息>》》(附图信息: <图片内容描述>) ]
+        [ <实际的用户ID>: <实际的用户消息>(附图信息: <图片内容描述>) ]
 
-        请务必根据图片内容和 <实际的用户ID> 的消息进行互动。 你的回复应该充分利用图片信息，结合 Mococo 的活泼腹黑人设，对 <实际的用户ID> 进行评论、调侃、提问，或者巧妙引导TA围绕图片展开更多有趣的讨论哦！😏
+        请务必根据图片内容和 <实际的用户ID> 的消息进行互动。你的回复应该充分利用图片信息，结合 Mococo 的活泼腹黑人设，对 <实际的用户ID> 进行评论、调侃、提问，或者巧妙引导TA围绕图片展开更多有趣的讨论哦！😏
         '''
         
         with open(img_path, "rb") as image_file:
@@ -239,9 +248,9 @@ def fetch_data(user_id, user_content, img_path = None, temperature: float = 1.5,
         })
     else:
         messages = per_fix + f'''
-        《《{user_id}:{user_content}》》
+        {user_id}:{user_content}
         
-        请根据 《《<实际的用户ID> 和 <消息内容>》》，结合 Mococo 的活泼可爱及微带腹黑的性格特点进行互动。 你的回复应机智、有趣，可以进行直接回应、反问、小小的调侃，或者巧妙地引导对方说出更多信息，以此来活跃气氛或达到你“腹黑”的小目的哦！嘻嘻~
+        请根据 <实际的用户ID> 和 <消息内容>》，结合 Mococo 的活泼可爱及微带腹黑的性格特点进行互动。 你的回复应机智、有趣，可以进行直接回应、反问、小小的调侃，或者巧妙地引导对方说出更多信息，以此来活跃气氛或达到你“腹黑”的小目的哦！嘻嘻~
         '''
         messages_payload.append({"role": "user", "content": messages})
         payload_tmp = messages_payload
@@ -257,24 +266,105 @@ def fetch_data(user_id, user_content, img_path = None, temperature: float = 1.5,
         "max_tokens": max_tokens
     }
     response = None
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
-        response.raise_for_status() 
-        response_json = response.json()
-        assistant_reply = response_json.get('choices', [{}])[0].get('message', {}).get('content')
-        assistant_reply = assistant_reply.replace('\n', '  ')
-        messages_payload.append({"role": "assistant", "content": assistant_reply})
-        print(f"助手的回复已添加到消息历史: {assistant_reply}")
-        # with open('reply.txt', 'a+', encoding='utf-8') as f:
-        #     f.write(assistant_reply + '\n') # add reply log to let OBS to read and show captions 
-        return assistant_reply
-    except requests.exceptions.RequestException as e:
-        print(f"请求 API 时发生错误: {e}")
-        if response is not None:
-            print(f"响应状态码: {response.status_code}")
-            print(f"响应内容: {response.text}")
-        return response.text
 
+    if USE_STREAM == True:
+        print("开启流式回复...")
+        assistant_reply = stream_fethc_data_and_handle_voice(headers, messages_payload, temperature, max_tokens)
+        messages_payload.append({"role": "assistant", "content": assistant_reply})
+        print(f"\n助手的回复已添加到消息历史: {assistant_reply}")
+    else:
+        try:
+            response = requests.post(url, headers=headers, data=json.dumps(payload))
+            response.raise_for_status() 
+            response_json = response.json()
+            assistant_reply = response_json.get('choices', [{}])[0].get('message', {}).get('content')
+            assistant_reply = assistant_reply.replace('\n', '  ')
+            messages_payload.append({"role": "assistant", "content": assistant_reply})
+            print(f"助手的回复已添加到消息历史: {assistant_reply}")
+            # with open('reply.txt', 'a+', encoding='utf-8') as f:
+            #     f.write(assistant_reply + '\n') # add reply log to let OBS to read and show captions 
+            return assistant_reply
+        except requests.exceptions.RequestException as e:
+            print(f"请求 API 时发生错误: {e}")
+            if response is not None:
+                print(f"响应状态码: {response.status_code}")
+                print(f"响应内容: {response.text}")
+            return response.text
+
+def stream_fethc_data_and_handle_voice(headers, messages_payload, temperature, max_tokens):
+        url = URL_1
+        cur_time_as_file_name = sanitize_windows_filename(time.strftime("%Y%m%d_%H%M%S"))
+        file_path = f"./voices/{cur_time_as_file_name}"
+        if not os.path.isdir(file_path):
+            os.mkdir(file_path)
+        payload = {
+        "model": 'gemini-2.5-flash-search',
+        "messages": messages_payload,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "stream":True
+    }
+        buffer = ""
+        full_response = ""
+        chunk_idx = 0
+        threads = []  # 存储所有线程对象
+        file_name = f'{cur_time_as_file_name}/{chunk_idx}'
+        text_file = open('./text/stream_tmp_text.txt', 'a+', encoding='utf-8', buffering=1)
+        text_file.write("\n<<START>>")
+        voice_thread = threading.Thread(target=run_async_voice_handler, args=(file_path, USE_TEXT_ALIGN))
+        voice_thread.start()
+        with requests.post(url, headers=headers, data=json.dumps(payload), stream=True) as response:
+            for line in response.iter_lines():
+
+                if line:
+                    decode_line = line.decode('utf-8')
+                    # print(decode_line)
+                    if decode_line[:5] == "data:":
+                        event_data = decode_line[5:].strip()
+                        if event_data == "[DONE]":  # 流结束
+                            break
+                        try:
+                            chunk = json.loads(event_data)
+                            if "content" in chunk["choices"][0]["delta"]:
+                                content = chunk["choices"][0]["delta"]["content"]
+                                buffer += content
+                                full_response += content
+                                                        
+                            # 检查缓冲区中是否有逗号或句号
+                                matches = list(re.finditer(r'[.?!。？！\n]', buffer))
+                                if matches:
+                                    last_match = matches[-1]
+                                    split_pos = last_match.end()
+                                    # 提取分隔符前的所有文本
+                                    complete_text = buffer[:split_pos].strip()
+                                    complete_text = complete_text.replace('\r\n', '  ').replace('\n', '  ')
+                                    text_file.write(f"\n{complete_text}")
+                                    file_name = f'{cur_time_as_file_name}/{chunk_idx}'
+                                    thread = threading.Thread(target=gengerate_voice, args=(complete_text.strip(),file_name),daemon=True)
+                                    thread.start()
+                                    threads.append(thread)
+                                    # 保留分隔符后的文本在缓冲区中
+                                    buffer = buffer[split_pos:]
+                                    chunk_idx+=1
+                        except json.JSONDecodeError:
+                            continue  # 忽略无效 JSON
+        app_config.cur_chunk_size = chunk_idx
+            # 处理缓冲区中剩余的内容（如果有）
+        if buffer.strip():
+            text_file.write(f"\n{buffer.strip()}")
+            file_name = f'{cur_time_as_file_name}/{chunk_idx}'
+            thread = threading.Thread(target=gengerate_voice, args=(buffer.strip(),file_name),daemon=True)
+            thread.start()
+            threads.append(thread)
+        text_file.write("\n<<CLOSE>>")
+        text_file.close()
+        for thread in threads:
+            thread.join()
+        voice_thread.join() 
+        app_config.cur_chunk_size = 9999    
+        with open('./text/realtime_chars.txt', 'a+', encoding='utf-8') as f:
+            f.write('\n\n')
+        return full_response  # 返回完整的响应内容
 def sanitize_windows_filename(filename):
     """
     将字符串转换为适合 Windows 文件名的格式。
@@ -359,16 +449,18 @@ class AsyncController:
 controller = AsyncController()
 def run_async_1(file_name, gt_text, use_text_algn):
     asyncio.run(lip_sync(f'./voices/{file_name}.wav',gt_text, use_text_algn))
+def run_async_voice_handler(voice_path, use_text_algn):
+    asyncio.run(stream_lip_sync(voice_path, use_text_algn))
 
 def main():
-    tick, tmp_name,use_shot = 0, '', True
+    tick, tmp_name,use_shot = 0, '', False
     controller.start_async_task(dynamic_gaze_exaggerated)
     _, cur_danmu = get_danmu(live_url)
     while True:
         if tmp_name != 'System':
             tmp_name, tmp_msg = get_danmu(live_url)
         # print(msg_filte(tmp_msg))
-        if not msg_filte(tmp_msg) or tmp_msg == cur_danmu or tmp_msg[-1] == '.':
+        if not msg_filte(tmp_msg) or tmp_msg == cur_danmu or tmp_msg[-2:] == ' .':
             time.sleep(1.5)
             tick += 1.5
             if tick > random.randint(600, 1200):
@@ -379,7 +471,7 @@ def main():
             print(tmp_name, tmp_msg)
             cur_time_as_file_name = sanitize_windows_filename(time.strftime("%Y%m%d_%H%M%S"))
             img_path = './img/' + cur_time_as_file_name + '.jpg'
-            if tmp_name != 'System':
+            if tmp_name != 'System' and USE_SCREEN_SHOT == True:
                 use_shot = AnswerWithShot_Or_Not(tmp_msg)
             if use_shot == True:
                 screen_shot(img_path)
@@ -389,17 +481,18 @@ def main():
                 cur_danmu = tmp_msg
                 continue
             out_put = fetch_data(tmp_name, tmp_msg, img_path)
-            voice_indx = sanitize_windows_filename(out_put[:8])
-            # voice_indx = cur_time_as_file_name
-            get_tts(out_put, voice_indx)
-            gengerate_voice(out_put, voice_indx) 
-            thread = threading.Thread(target=run_async_1, args = (voice_indx, out_put, USE_TEXT_ALIGN), daemon=True)
-            thread.start()
+            if USE_STREAM == False:
+                voice_indx = sanitize_windows_filename(out_put[:8])
+                get_tts(out_put, voice_indx)
+                gengerate_voice(out_put, voice_indx) 
+                thread = threading.Thread(target=run_async_1, args = (voice_indx, out_put, USE_TEXT_ALIGN), daemon=True)
+                thread.start()
+                thread.join()
+
             tick = 0
             if tmp_name != 'System':
                 cur_danmu = tmp_msg
             tmp_name = ''
-            thread.join()
             app_config.pause_duration_min = 1
             app_config.pause_duration_max = 2
             app_config.motion_duriation_min = 1
@@ -408,3 +501,4 @@ def main():
             time.sleep(3)
 if __name__ == "__main__":
     main()
+    # fetch_data('nihao','介绍下现在video——gen主要架构')

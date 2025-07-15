@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时字幕</title>
+    <!-- 引入 ZCOOL KuaiLe 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <!-- 引入 Noto Color Emoji 字体，确保表情符号显示正常 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: transparent !important;
+            margin: 0;
+            overflow: hidden;
+            /* 确保 Emoji 字体在 ZCOOL KuaiLe 之后，作为回退 */
+            font-family: 'ZCOOL KuaiLe', 'Noto Color Emoji', "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+            display: flex; /* 使用 flexbox 居中内容 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            min-height: 100vh; /* 确保占据整个视口高度 */
+            padding: 20px; /* 增加一些内边距 */
+            box-sizing: border-box; /* 确保内边距不增加元素总宽度 */
+        }
+        
+        .art-subtitle {
+            font-family: 'ZCOOL KuaiLe', cursive; /* 将 'ZCOOL KuaiLe' 作为首选字体 */
+            font-size: 5rem;
+            text-align: center;
+            color: #ff8a8a;
+            text-shadow: 
+                2px 2px 0 #fff9c4,
+                4px 4px 0 rgba(0,0,0,0.15);
+            
+            letter-spacing: 2px; /* 可以适当调整字间距 */
+            word-spacing: 5px;
+            line-height: 1.4;
+            font-weight: 400; /* 使用这种字体时， normale (400) 的字重效果就很好，无需加粗 */
+            
+            animation: float 4s ease-in-out infinite;
+            max-width: 90vw; /* 限制最大宽度，防止内容溢出 */
+            word-wrap: break-word; /* 自动换行 */
+        }
+
+        .art-subtitle span.emoji {
+            font-size: 1.1em;
+            display: inline-block;
+            vertical-align: middle;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+            50% { transform: translateY(-10px) rotate(1.5deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* 响应式字体大小调整 */
+        @media (max-width: 1024px) {
+            .art-subtitle {
+                font-size: 4rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .art-subtitle {
+                font-size: 3rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .art-subtitle {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="art-subtitle" id="subtitle">Loading subtitle...</div>
+    
+    <script>
+        // 这个函数在 DOMContentLoaded 时和每次更新时处理文本中的表情符号
+        function processEmojis(text) {
+            // 这是一个更广泛的 Unicode 表情符号范围，但可能不包含所有最新表情
+            // 更好的做法是使用一个成熟的库，但对于基本需求，这个也行
+            const emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
+            return text.replace(emojiRegex, '<span class="emoji">$1</span>');
+        }
+
+        // 首次加载时获取字幕
+        document.addEventListener('DOMContentLoaded', (event) => {
+            fetchSubtitle(); // 首次加载时调用 fetchSubtitle
+        });
+
+        function fetchSubtitle() {
+            // 从 FastAPI 的 /get_subtitle 端点获取纯文本
+            fetch('/get_subtitle')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(newText => {
+                    const subtitleEl = document.getElementById('subtitle');
+                    // 只有当文本内容发生变化时才更新 DOM，减少不必要的重绘
+                    if (newText !== subtitleEl.textContent) {
+                        subtitleEl.innerHTML = processEmojis(newText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching subtitle:', error);
+                    document.getElementById('subtitle').innerText = '加载字幕失败...';
+                });
+        }
+
+        // 每 500 毫秒更新一次字幕
+        setInterval(fetchSubtitle, 500);
+    </script>
+</body>
+</html>

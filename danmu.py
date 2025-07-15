@@ -28,6 +28,9 @@ def get_danmu(url):
 
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
-    return (data['data']['room'][-1]['nickname'], data['data']['room'][-1]['text'])
+    try:
+        return (data['data']['room'][-1]['nickname'], data['data']['room'][-1]['text'])
+    except:
+        return '', ''
 
 
