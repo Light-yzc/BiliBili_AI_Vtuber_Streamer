@@ -48,12 +48,12 @@ pip install -r requirements.txt
 
 请根据您的环境修改 `config.json` 文件：
 
-```json
+```python
 {
   "statue": 1,
-  "msg_filte": ["互关", "关注", "回关", "", " ", "\n"], // 用于过滤直播弹幕中的敏感或无意义关键词
-  "api-key-tts": "sk-",  // TTS 服务 API 密钥（例如 SiliconFlow）
-  "api-url-tts": "https://api.siliconflow.cn/v1/audio/speech",  // TTS 服务请求地址
+  "msg_filte": ["互关", "关注", "回关"], // 用于过滤直播弹幕中的敏感或无意义关键词
+  "api-key-tts": "sk-",  // TTS 服务 API 密钥（例如 SiliconFlow）如果使用本地推理（如gptsovits等）可以不填
+  "api-url-tts": "https://api.siliconflow.cn/v1/audio/speech",  // TTS 服务请求地址，其他同上
   "api-key-llm-1": "",  // 主 LLM API 密钥（主要用于生成主播回复）
   "api-key-llm-2": "sk-",  // 次 LLM API 密钥（用于过滤无意义消息和辅助判断是否需要截屏）
   "api-url-1": "",   // 主 LLM 服务请求地址
@@ -62,6 +62,7 @@ pip install -r requirements.txt
   "ws_host": "ws://localhost:8088",  // VTuber Studio (VTS) WebSocket 地址
   "vts_authenticationToken": "",  // VTS 认证令牌（可选，留空则首次启动时自动获取）
   "streamer_name":"your name",  // 你的 B 站直播间昵称，有助于 LLM 区分主播和观众
+  "danmu_context":4,       //直播间上下文弹幕条数
   "use_text_align":false, // 强制文本-语音对齐功能，开启后可实现字幕与语音同步显示（需额外安装 torch 和 whisperx）
   "use_screen_shot":true, //是否启用小模型来辅助判断启用截图功能
   "use_stream":true //是否开启流式输出并生成语音，可能有助于减少AI主播的反应时间
@@ -137,7 +138,14 @@ python main.py
 -----
 ### Version 0.1.15 (2025-07-15)
   * 增加流式输出
-
+-----
+### Version 0.1.18(2025-7-29)
+  * 增加HTML网页字体，能够自动读取生成的文本并应用相应字体。使用方法请参考OBS等软件的添加浏览器网页。启动服务路径在`.\customer_font\fast_backend.py`
+![alt text](image-1.png)
+  * 对弹幕获取方式进行了更新，现在能接受最多4条弹幕的上下文以提供更多信息给LLM，具体上下文条数可以参考`config.json`中的`danmu_context`。如果其值为1，则为旧版获取弹幕方式。
+  * 增加logger样式命令行输出。
+  * 优化了对LLM的提示词
+-----
 ## 📜 许可证
 
 本项目采用 [MIT License](https://github.com/yourusername/bilibili-ai-live-demo/blob/main/LICENSE)。你可以自由地进行商业使用和修改，但请务必保留原作者信息。

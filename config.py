@@ -7,4 +7,5 @@ class DynamicConfig:
         self.Action_magnification = 0.5
         self.mouth  = 1
         self.cur_chunk_size = 9999
+        self.logger = None
 app_config = DynamicConfig()

@@ -7,7 +7,6 @@ import sounddevice as sd
 from websockets import connect
 from playsound import playsound
 from config import app_config
-from text_align import *
 import time
 import os
 with open('./config.json', 'r', encoding='utf-8') as file:
@@ -16,8 +15,11 @@ with open('./config.json', 'r', encoding='utf-8') as file:
     AUTH_TOKEN = GLOBAL_CONFIG['vts_authenticationToken']
 
     if GLOBAL_CONFIG['use_text_align']:
+        from text_align import *
         model_a, metadata, device = load_whisper_model()
-
+    else:
+        model_a, metadata, device = None, None, None
+logger = app_config.logger
 is_play = 0
 
 class AudioState:
@@ -53,7 +55,7 @@ class AudioState:
                     latency='low'
                 )
             except Exception as e:
-                print(f"初始化音频流失败: {e}")
+                logger.error(f"初始化音频流失败: {e}")
                 self._stream = None # 如果失败，将其设为None
         return self._stream
 
@@ -63,9 +65,9 @@ audio_state = AudioState()
 # (可选) 在程序启动时尝试获取并初始化流一次
 stream_on_startup = audio_state.get_stream()
 if stream_on_startup:
-    print("音频流已预初始化。")
+    logger.info("音频流已预初始化。")
 else:
-    print("音频流预初始化失败，将按需初始化。")
+    logger.warning("音频流预初始化失败，将按需初始化。")
 
 
 def audio_play_thread(mp3_path, aligned_data_list, output_file_path="./text/realtime_chars.txt"):
@@ -73,27 +75,29 @@ def audio_play_thread(mp3_path, aligned_data_list, output_file_path="./text/real
     独立音频播放线程，并在播放中实时将字符写入文件。
     """
     # 加载音频
-    audio, sr = librosa.load(mp3_path, sr=audio_state.sample_rate, mono=True)
-    audio = np.clip(audio * 2.3, -1.0, 1.0) # 振幅调整
-
+    try:
+        audio, sr = librosa.load(mp3_path, sr=audio_state.sample_rate, mono=True)
+        audio = np.clip(audio * 2.5, -1.0, 1.0) # 振幅调整
+    except:
+        logger.error('音频播放失败')
     # 获取音频流实例
     stream = audio_state.get_stream()
     if stream is None:
-        print("错误：无法获取或初始化音频流，无法播放。")
+        logger.error("错误：无法获取或初始化音频流，无法播放。")
         return
 
     # 在播放前确保流已停止并准备好
     if stream.closed: # 如果流在某个时刻被外部关闭了，重新获取
         stream = audio_state.get_stream()
         if stream is None:
-            print("错误：重新初始化音频流失败，无法播放。")
+            logger.error("错误：重新初始化音频流失败，无法播放。")
             return
 
     # 开始音频流
     try:
         stream.start()
     except sd.PortAudioError as e:
-        print(f"启动音频流失败: {e}")
+        logger.error(f"启动音频流失败: {e}")
         return
 
     # 文件写入逻辑 (保持不变)
@@ -102,7 +106,7 @@ def audio_play_thread(mp3_path, aligned_data_list, output_file_path="./text/real
         current_char_index = 0
         output_file = open(output_file_path, 'a+', encoding='utf-8')
         output_file.write('\n')
-        print(f"开始播放音频，并将字符实时写入：{output_file_path}")
+        logger.info(f"开始播放音频，并将字符实时写入：{output_file_path}")
 
     audio_state.audio_data = audio # 将音频数据设置到共享状态
 
@@ -147,14 +151,14 @@ def audio_play_thread(mp3_path, aligned_data_list, output_file_path="./text/real
             # sd.sleep(int(1000 / 30))
 
     except Exception as e:
-        print(f"播放过程中发生错误: {e}")
+        logger.error(f"播放过程中发生错误: {e}")
     finally:
         # 播放结束后停止流
         stream.stop()
         if aligned_data_list is not None and output_file is not None:
             output_file.write('\n' + aligned_data_list[-1]['word']) # 确保最后一个词也被写入
             output_file.close() # 关闭文件
-        print("音频播放完毕或停止事件触发。")
+        logger.info("音频播放完毕或停止事件触发。")
 
 async def lip_sync(mp3_path, gt_text, use_text_algn = False):
     if use_text_algn == False and gt_text != None:
@@ -249,6 +253,7 @@ async def stream_lip_sync(voice_path, use_text_algn = False):
     found_start = False     # 标记是否已经找到了至少一个 <<START>>
     cur_index = 0
     Last_text = ''
+    start = time.time()
     while True:
         if len(last_start_content) != 0:
             Last_text = last_start_content[-1]
@@ -271,15 +276,24 @@ async def stream_lip_sync(voice_path, use_text_algn = False):
         else:
             if cur_index <= len(last_start_content):
                 file_path = voice_path + f'/{cur_index}.wav'
-                if cur_index == app_config.cur_chunk_size:
+                if cur_index+1 == app_config.cur_chunk_size:
+                    logger.info('所有语音已经播放完毕')
                     return '<<DONE>>'
                 if not os.path.exists(file_path):
+                    cur_time = time.time()
+                    if cur_time - start > 85:
+                        logger.warning('语音获取时间超时，开始退出...')
+                        return False
                     time.sleep(0.2)
                 else:
-                    print(f'开始播放第{cur_index}段音频')
+                    start = time.time()
+                    logger.info(f'开始播放第{cur_index}段音频')
+                    logger.info(last_start_content[cur_index])
                     await lip_sync(file_path, last_start_content[cur_index], use_text_algn)
                     cur_index += 1
-
+            else:
+                logger.info('所有语音已经播放完毕')
+                return '<<DONE>>'
         
 # if __name__ == "__main__":
 #     asyncio.run(lip_sync(r"E:\Code\AI_Vtuber_by_tavern\voices\test_align.mp3", "一起玩吗？莫可可超想的啦。嗯，可是你看，master现在在弄那个服务器哟，okay？好像出了点问题，所以现在还不能玩啦。"))

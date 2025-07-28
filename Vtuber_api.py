@@ -4,6 +4,7 @@ import random
 import math
 from websockets import connect
 from config import app_config
+logger = app_config.logger
 with open('./config.json', 'r', encoding='utf-8') as file:
     uri= json.load(file)['ws_host']
 current_params = {
@@ -30,7 +31,7 @@ async def get_authenticationToken():
         }
         await socket.send(json.dumps(to_auth))
         response = json.loads(await socket.recv())
-        print('authenticationToken ' + str(response['data']['authenticationToken']))
+        logger.info('authenticationToken ' + str(response['data']['authenticationToken']))
         try:
             with open('./config.json', 'r+', encoding='utf-8') as f:
                 config = json.load(f)
@@ -38,13 +39,13 @@ async def get_authenticationToken():
                 f.seek(0)  # 将文件指针移到开头
                 json.dump(config, f, ensure_ascii=False, indent=4) # indent=4 可以让生成的json文件更易读
                 f.truncate() # 截断文件，移除旧内容（如果新内容比旧内容短）
-            print('authenticationToken ' + str(response['data']['authenticationToken']))
+            logger.info('authenticationToken ' + str(response['data']['authenticationToken']))
         except FileNotFoundError:
-            print("错误：config.json 文件未找到。请确保文件存在。")
+            logger.error("错误：config.json 文件未找到。请确保文件存在。")
         except json.JSONDecodeError:
-            print("错误：config.json 文件内容无效，无法解析为 JSON。")
+            logger.error("错误：config.json 文件内容无效，无法解析为 JSON。")
         except Exception as e:
-            print(f"发生未知错误：{e}")
+            logger.error(f"发生未知错误：{e}")
 
 def lerp(a, b, t):
     """线性插值"""
@@ -65,12 +66,11 @@ async def dynamic_gaze_exaggerated():
         #     await get_authenticationToken()
     
     async with connect(uri) as websocket:
-        # 1. 身份认证 (省略，与之前相同)
-        # ...
+        # 1. 身份认证
         authed = { "apiName": "VTubeStudioPublicAPI", "apiVersion": "1.0", "requestID": "123", "messageType": "AuthenticationRequest", "data": { "pluginName": "My Cool Plugin", "pluginDeveloper": "My Name", "authenticationToken": GLOBAL_CONFIG['vts_authenticationToken'] } }
         await websocket.send(json.dumps(authed))
         auth_response = await websocket.recv()
-        print("认证响应:", json.loads(auth_response))
+        logger.info(f"认证响应: {json.loads(auth_response)}")
 
 
         # 2. 持续生成并执行夸张动作

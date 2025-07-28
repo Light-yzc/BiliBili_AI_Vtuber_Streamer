@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, PlainTextResponse
 import os
 import logging
-
+import uvicorn
 # 创建 FastAPI 应用实例
 app = FastAPI(
     title="实时字幕服务",
@@ -88,5 +88,7 @@ async def get_current_subtitle():
     """
     return get_last_line()
 
-# 运行uvicorn flask_backend:app --host 0.0.0.0 --port 5000 --reload --log-level "warning"
+if __name__ == "__main__":
+    print(f"访问地址：http://127.0.0.1:5000/来使用文本服务")
+    uvicorn.run(app='flask_backend:app', host='0.0.0.0', port=5000, reload=True, log_level='warning')
 # web地址http://127.0.0.1:5000/
