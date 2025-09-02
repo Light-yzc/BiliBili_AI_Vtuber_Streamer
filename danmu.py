@@ -106,7 +106,7 @@ def get_danmu(url):
             return (data['data']['room'][-1]['timeline'], data['data']['room'][-1]['nickname'], cur_msg, None)
     except Exception as e:
         logger.warning(e)
-        return '', '' , ''
+        return '', '' , '', ''
     
 def msg_filte(msg):
 

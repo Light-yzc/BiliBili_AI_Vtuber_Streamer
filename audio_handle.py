@@ -5,7 +5,6 @@ import numpy as np
 import librosa
 import sounddevice as sd
 from websockets import connect
-from playsound import playsound
 from config import app_config
 import time
 import os
@@ -77,7 +76,7 @@ def audio_play_thread(mp3_path, aligned_data_list, output_file_path="./text/real
     # 加载音频
     try:
         audio, sr = librosa.load(mp3_path, sr=audio_state.sample_rate, mono=True)
-        audio = np.clip(audio * 2.5, -1.0, 1.0) # 振幅调整
+        audio = np.clip(audio * 1, -1.0, 1.0) # 振幅调整
     except:
         logger.error('音频播放失败')
     # 获取音频流实例
@@ -99,18 +98,18 @@ def audio_play_thread(mp3_path, aligned_data_list, output_file_path="./text/real
     except sd.PortAudioError as e:
         logger.error(f"启动音频流失败: {e}")
         return
-
-    # 文件写入逻辑 (保持不变)
-    output_file = None
-    if aligned_data_list is not None:
-        current_char_index = 0
-        output_file = open(output_file_path, 'a+', encoding='utf-8')
-        output_file.write('\n')
-        logger.info(f"开始播放音频，并将字符实时写入：{output_file_path}")
-
-    audio_state.audio_data = audio # 将音频数据设置到共享状态
-
+    
     try:
+        # 文件写入逻辑 (保持不变)
+        output_file = None
+        if aligned_data_list is not None:
+            current_char_index = 0
+            output_file = open(output_file_path, 'a+', encoding='utf-8')
+            output_file.write('\n')
+            logger.info(f"开始播放音频，并将字符实时写入：{output_file_path}")
+
+        audio_state.audio_data = audio # 将音频数据设置到共享状态
+
         while not audio_state.stop_event.is_set():
             with audio_state.lock:
                 start_sample = audio_state.position

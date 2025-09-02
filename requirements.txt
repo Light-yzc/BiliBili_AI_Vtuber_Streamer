@@ -1,8 +1,9 @@
-requests
-playsound
-numpy
-Pillow
-opencv-python
-websockets
-sounddevice
 librosa
+mss
+numpy
+opencv-python
+pygetwindow
+requests
+sounddevice
+uvicorn
+websockets

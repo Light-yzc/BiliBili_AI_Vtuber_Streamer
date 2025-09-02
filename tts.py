@@ -2,7 +2,6 @@ import requests
 import wave
 import json
 import os
-from audio_handle import audio_state
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from config import app_config
@@ -56,13 +55,14 @@ def gengerate_voice(text, file_name):
     global tmp_file,i,ref_path
     max_retries = 2
     
-    ref_path = os.path.dirname(os.path.abspath(__file__)) + '/gpt_sovits_ref/ref.wav'
-    corrected_file_path = ref_path.replace('\\', '/')
-    url = f'http://127.0.0.1:9880/?refer_wav_path='+ corrected_file_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=15&top_p=1&temperature=1&speed=0.8&cut_punc=，。`'
-    #NEW model url
-    # ref_path = 'D:/gpt_sovits_ref/ref.wav'
-    # url = f'http://127.0.0.1:9880/?refer_wav_path='+ ref_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=5&top_p=0.6&temperature=1&speed=0.8&cut_punc=，。`'
-
+    ref_path = os.path.dirname(os.path.abspath(__file__)) + '/gpt_sovits_ref/fumino0030.ogg_0000000000_0000176000.wav'
+    
+    # gpt_sovits_api_v2
+    # url = f'http://127.0.0.1:9880/?refer_wav_path='+ ref_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=15&top_p=1&temperature=1&speed=0.8&cut_punc=，。`'
+    url = f'http://127.0.0.1:9880/tts?text={text}&text_lang=zh&ref_audio_path={ref_path}&prompt_lang=ja&prompt_text=私は、戸籍が男性のものになっておりますので&text_split_method=cut5&batch_size=3&media_type=wav&streaming_mode=false&speed_factor=1&topk=8'
+    
+    # gpt_sovits_api_v1
+    # url = f'http://frp-cup.com:63143/?refer_wav_path='+ ref_path + '&prompt_text=やめない、壊れそうだから、さきが壊れたら&prompt_language=ja&text=' + text + '&text_language=zh&top_k=5&top_p=0.6&temperature=1&speed=0.8&cut_punc=，。`&API=qwer132123'
     retry_strategy = Retry(total=max_retries, backoff_factor=1, status_forcelist=[500, 502, 503, 504], allowed_methods=['GET'])
     session = requests.Session()
     adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -74,8 +74,11 @@ def gengerate_voice(text, file_name):
         response.raise_for_status()  # 检查HTTP状态码（4xx/5xx会抛异常）
         bin_to_mp3(response.content, file_name)
     except Exception as e:
-        logger.error(e)
-        logger.warning("------tts的Api服务器不可用，跳过声音生成------")
+        file_path = f'./voices/{file_name}.wav' 
+        with open(file_path, 'wb') as f:
+            pass
+        # print(e)
+        logger.error("------tts的Api服务器不可用，跳过声音生成------")
 
 # test_text = '''你好啊，我是mococo'''
 # gengerate_voice(test_text,'./test2')

@@ -1,7 +1,6 @@
 import asyncio
 import json
 import random
-import math
 from websockets import connect
 from config import app_config
 logger = app_config.logger
